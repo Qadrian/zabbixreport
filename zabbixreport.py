@@ -2,9 +2,9 @@ import requests,json,csv,codecs,datetime,time
 import xlsxwriter
 
 ApiUrl = 'https://zabbix.msbu.cloud/api_jsonrpc.php'
-user="Admin"
-password="Jakarta2023@"
-token="679f4b4cec4e1fdf02ef7b6024e5ab530fdfe84a4c037bec0b4e3784afa299de"
+user=""
+password=""
+token=""
 header = {"Content-Type":"application/json", "Authorization": f"Bearer {token}"}
 
 Title1=['Hostname','IP','CPU Utilization','Memory Util (%)','Space Util (/ %)','Net In (Bits)','Net Out (Bits)','Start Time','End Time']
