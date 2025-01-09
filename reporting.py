@@ -1,14 +1,17 @@
 import requests,json,csv,codecs,datetime,time
 import xlsxwriter
+import random
 from spire.xls import *
 from spire.xls.common import *
 from metrics import metrics
 
-ApiUrl = '<api_url>'
-token = "<token>"
+
+ApiUrl = 'https://zabbix.msbu.cloud/api_jsonrpc.php'
+token = "9929cbeeb35f4052f05e8a1ef54ebb9242071f6b80900464fd1fa7f9e67e2fc3"
 header = {"Content-Type":"application/json", "Authorization": f"Bearer {token}"}
 
 alphabet = list(map(chr, range(ord('A'), ord('Z')+1)))
+r = lambda: random.randint(0,255)
 
 # x=(datetime.datetime.now()-datetime.timedelta(days=30)).strftime("%Y-%m-%d %H:%M:%S")
 # y=(datetime.datetime.now()).strftime("%Y-%m-%d %H:%M:%S")
@@ -211,6 +214,11 @@ def createreport(groupName):
             "Errors": format_errors,
         }
 
+        # create main sheet
+        mainSheet = workbook.add_worksheet("Main")
+        mainSheet.write(0, 0, groupName, format_title)
+        cpu_chart = workbook.add_chart({'type': 'line'})
+        cpu_chart.set_title({'name': 'CPU Utilization Monthly(%)'})
 
         # get all host in group
         hosts = get_hosts(groupName)
@@ -227,6 +235,12 @@ def createreport(groupName):
             sheet.set_column('B:Z', 25)
             dayInMonth = 31
             i = 1
+
+            cpu_chart.add_series({
+                "values": f"='{hostnames}'!$B${i+2}:$B${i+dayInMonth+1}", 
+                "name": f"{hostnames}",
+                "line": {"color": '#%02X%02X%02X' % (r(),r(),r())}
+            })
 
             # Write per Category
             for category in metrics["Linux by Zabbix agent"]:
@@ -279,16 +293,9 @@ def createreport(groupName):
                         k+=1
                     j+=1
                 i+=dayInMonth+3
-
-
-                # chart = workbook.add_chart({'type': 'line'})
-                # chart.set_title({'name': 'CPU Utilization Monthly'})
-                # chart.add_series({
-                #     "values": f"='{hostnames}'!$B$2:$B$32", 
-                #     "name": f"{itemname}",
-                #     "line": {"color": "#1ac6c0"}
-                #     })
-                # sheet.insert_chart('C1', chart)
+            
+    
+        mainSheet.insert_chart('A5', cpu_chart)
 
 
             # write title
